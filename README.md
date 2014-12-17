@@ -1,5 +1,9 @@
 #Sirius-Decorators
 
+[![Build Status](https://travis-ci.org/siriusphp/decorators.svg)](https://travis-ci.org/siriusphp/decorators)
+[![Coverage Status](https://coveralls.io/repos/siriusphp/decorators/badge.png)](https://coveralls.io/r/siriusphp/decorators)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/siriusphp/decorators/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/siriusphp/decorators/?branch=master)
+
 `Sirius\Decorators` is a library that will allow you to create extensible systems without having to use:
 
 1. **Deep inheritance**. Inherintance can take you not that far when it comes to create extensible classes.
