@@ -10,7 +10,7 @@
 2. **Traits**. Traits overcome the limitations of inherintance but they don't have an inheritance mechanism and you can't have multiple levels of traits on the same object (ie: on class `SomeClass` that uses `TraitA` and `TraitB` which both implement method `foo()` you cannot make `TraitA::foo()` call `TraitB::foo()`)
 3. **Event systems**. Although very good at what they do event systems require you to write lots of code for everything that requires interaction with the event system.
 4. **Command busses**. Command busses allow you to change the behaviour of the system by having different functions respond to a command but composing these function is very easy. Think of a `getLatestPosts` command  that should retrieve the posts from database; you attach a callback to that command but later you want to implement a cache mechanism (ie: query the cache first and delegate to the previous callback if items are not in cache)
-5. **AOP** (Aspect Oriented Programming). AOP is difficult because of the terminology and implementations are "heavy". http://go.aopphp.com/ is on of such implementations
+5. **AOP** (Aspect Oriented Programming). AOP is difficult because of the terminology and implementations are "heavy". http://go.aopphp.com/ is ones of such implementations
 
 Having said that, I must warn you that the `Sirius\Decorators` is not flawless and has some trade-offs (very small).
 
@@ -46,7 +46,7 @@ class ORMBase {
 	}
 }
 
-class ORM extends ORM {
+class ORM extends ORMBase {
 	use \Sirius\Decorators\DecoratableTrait;
 }
 ```
@@ -56,7 +56,7 @@ class ORM extends ORM {
 #### 2. Decide which methods you want to be extendable/decoratable
 
 ```php
-class ORM extends ORM {
+class ORM extends ORMBase {
 	use \Sirius\Decorators\DecoratableTrait;
 	
 	function getLatestArticles() {
