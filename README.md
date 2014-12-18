@@ -91,10 +91,11 @@ Decorator classes must extend the `Sirius\Stratum\Decorator` class.
 
 1. It is not a "pure" implementation of a pattern. [People complained](http://www.reddit.com/r/PHP/comments/2pke2j/aop_without_aop/) that it is either the Mediator pattern, the Chain of Responsibility pattern or a disquised Event pattern.
 2. You have global state (ie: a singleton manager of the "strata" for each class). I consider the implementation to be similar to having traits (at the global level you define the traits) and I am not a purist.
+3. Since the "decorators" are not required to implement the interface of the decorated object the library relies on `__call()` to pass the calls to the next layers, which come with a performance penalty. I will try to address this issue in the future though.
 
 #### 2. Am I limited to classes for behaviour?
 
-No. You can add an object to as a decorator (the object will be cloned whenever needed by that class though) or a callback/function that returns a decorator
+No. You can add an object as a decorator (the object will be cloned whenever needed by that class though, so keep that in mind) or a callback/function that returns a decorator.
 
 ```php
 $manager->add($someAlreadyInstanciatedDecorator, 'ORM');
