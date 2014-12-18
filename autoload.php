@@ -2,7 +2,7 @@
 spl_autoload_register(function ($class) {
     
     // what namespace prefix should be recognized?
-    $prefix = 'Sirius\Decorators\\';
+    $prefix = 'Sirius\Stratum\\';
     
     // does the requested class match the namespace prefix?
     $prefix_len = strlen($prefix);

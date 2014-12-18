@@ -1,11 +1,10 @@
 {
-    "name": "siriusphp/decorators",
-    "description": "Library that ease the",
+    "name": "siriusphp/stratum",
+    "description": "General purpose library that allows extending the functionality of your objects through a decorator-like mechanism",
     "type": "library",
     "license": "MIT",
     "keywords": [
-        "decorator",
-        "wrapper",
+        "decorator pattern",
         "design patterns",
         "mixins",
         "aop",

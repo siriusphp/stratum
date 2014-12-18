@@ -1,7 +1,7 @@
 <?php
-namespace Sirius\Decorators;
+namespace Sirius\Stratum;
 
-class TestableDecoratableObjectBase
+class TestableLayerableObjectBase
 {
 
     function foo($repeat = 1)
@@ -15,17 +15,17 @@ class TestableDecoratableObjectBase
     }
 }
 
-class TestableDecoratableObject extends TestableDecoratableObjectBase implements DecoratableInterface
+class TestableLayerableObject extends TestableLayerableObjectBase implements LayerableInterface
 {
-    use DecoratableTrait;
+    use LayerableTrait;
 
     function foo($repeat = 1)
     {
-        return $this->executeDecoratedMethod(__FUNCTION__, func_get_args());
+        return $this->executeLayeredMethod(__FUNCTION__, func_get_args());
     }
 }
 
-class DecoratorA extends Decorator
+class LayerA extends Layer
 {
 
     function foo($repeat = 1)
@@ -36,7 +36,7 @@ class DecoratorA extends Decorator
     }
 }
 
-class DecoratorB extends Decorator
+class LayerB extends Layer
 {
 
     function foo($repeat = 1)
@@ -64,72 +64,72 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         $this->manager = Manager::resetInstance();
     }
 
-    function testNoDecorators()
+    function testNoLayers()
     {
-        $testableObj = new TestableDecoratableObject();
+        $testableObj = new TestableLayerableObject();
         
         $this->assertEquals('bar', $testableObj->foo());
         $this->assertEquals('baz', $testableObj->bar());
     }
 
-    function testClassDecorators()
+    function testClassLayers()
     {
         // decorators have the same priority, the order they were added matters
-        $this->manager->add('Sirius\Decorators\DecoratorA', 'Sirius\Decorators\TestableDecoratableObject');
-        $this->manager->add('Sirius\Decorators\DecoratorB', 'Sirius\Decorators\TestableDecoratableObject');
+        $this->manager->add('Sirius\Stratum\LayerA', 'Sirius\Stratum\TestableLayerableObject');
+        $this->manager->add('Sirius\Stratum\LayerB', 'Sirius\Stratum\TestableLayerableObject');
         
-        $testableObj = new TestableDecoratableObject();
+        $testableObj = new TestableLayerableObject();
         
         $this->assertEquals('***barbar', $testableObj->foo());
         $this->assertEquals('baz', $testableObj->bar());
     }
     
-    function testDecoratorPassedAsObject() {
-        $this->manager->add(new DecoratorA, 'Sirius\Decorators\TestableDecoratableObject');
+    function testLayerPassedAsObject() {
+        $this->manager->add(new LayerA, 'Sirius\Stratum\TestableLayerableObject');
         
-        $testableObj = new TestableDecoratableObject();
-        
-        $this->assertEquals('barbar', $testableObj->foo());
-    }
-
-    function testDecoratorPassedAsCallback() {
-        $this->manager->add(array($this, 'createValidDecorator'), 'Sirius\Decorators\TestableDecoratableObject');
-        
-        $testableObj = new TestableDecoratableObject();
+        $testableObj = new TestableLayerableObject();
         
         $this->assertEquals('barbar', $testableObj->foo());
     }
 
-    function testExceptionThrownForMissingDecoratorClass()
-    {
-    	$this->setExpectedException('InvalidArgumentException');
-    	$this->manager->add('SomeNonexistantClass', 'Sirius\Decorators\TestableDecoratableObject');
+    function testLayerPassedAsCallback() {
+        $this->manager->add(array($this, 'createValidLayer'), 'Sirius\Stratum\TestableLayerableObject');
+        
+        $testableObj = new TestableLayerableObject();
+        
+        $this->assertEquals('barbar', $testableObj->foo());
     }
 
-    function testExceptionThrownForInvalidDecoratorClass()
+    function testExceptionThrownForMissingLayerClass()
     {
     	$this->setExpectedException('InvalidArgumentException');
-    	$this->manager->add('\stdClass', 'Sirius\Decorators\TestableDecoratableObject');
+    	$this->manager->add('SomeNonexistantClass', 'Sirius\Stratum\TestableLayerableObject');
     }
 
-    function testExceptionThrownForInvalidObjectDecorator()
+    function testExceptionThrownForInvalidLayerClass()
     {
     	$this->setExpectedException('InvalidArgumentException');
-    	$this->manager->add(new \stdClass(), 'Sirius\Decorators\TestableDecoratableObject');
+    	$this->manager->add('\stdClass', 'Sirius\Stratum\TestableLayerableObject');
+    }
+
+    function testExceptionThrownForInvalidObjectLayer()
+    {
+    	$this->setExpectedException('InvalidArgumentException');
+    	$this->manager->add(new \stdClass(), 'Sirius\Stratum\TestableLayerableObject');
     }
 
 
-    function testExceptionThrownForInvalidDecoratorCallback()
+    function testExceptionThrownForInvalidLayerCallback()
     {
     	$this->setExpectedException('InvalidArgumentException');
-    	$this->manager->add(array($this, 'createInvalidDecorator') , 'Sirius\Decorators\TestableDecoratableObject');
+    	$this->manager->add(array($this, 'createInvalidLayer') , 'Sirius\Stratum\TestableLayerableObject');
     }
     
-    function createInvalidDecorator() {
+    function createInvalidLayer() {
         return 5;
     }
     
-    function createValidDecorator() {
-        return new DecoratorA();
+    function createValidLayer() {
+        return new LayerA();
     }
 }

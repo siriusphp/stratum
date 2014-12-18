@@ -1,12 +1,12 @@
 <?php
-namespace Sirius\Decorators;
+namespace Sirius\Stratum;
 
 class Manager
 {
 
     protected static $instance;
 
-    protected $decoratorSets = array();
+    protected $layerSets = array();
 
     protected $index = PHP_INT_MAX;
 
@@ -17,8 +17,9 @@ class Manager
         }
         return self::$instance;
     }
-    
-    static function resetInstance() {
+
+    static function resetInstance()
+    {
         self::$instance = null;
         return self::getInstance();
     }
@@ -31,49 +32,51 @@ class Manager
             );
         }
         
-        $this->validateDecoratorArgument($classObjectOrCallback);
+        $this->validateLayerArgument($classObjectOrCallback);
         
         foreach ($destinationClasses as $class) {
-            if (! isset($this->decoratorSets[$class])) {
-                $this->decoratorSets[$class] = array();
+            if (! isset($this->layerSets[$class])) {
+                $this->layerSets[$class] = array();
             }
             
-            $this->decoratorSets[$class][] = array(
+            $this->index--;
+            $this->layerSets[$class][] = array(
                 'decorator' => $classObjectOrCallback,
                 'priority' => $priority,
-                'index' => $this->index --
+                'index' => $this->index
             );
             
-            $this->sortDecoratorSet($this->decoratorSets[$class]);
+            $this->sortLayerSet($this->layerSets[$class]);
         }
     }
 
-    function createDecoratorStack(DecoratableInterface $decoratableObject)
+    function createLayerStack(LayerableInterface $layerableObject)
     {
-        $class = get_class($decoratableObject);
-    	$baseDecorator = new Decorator\ObjectWrapper($decoratableObject);
-    	if (!isset($this->decoratorSets[$class])) {
-    	    return $baseDecorator;
-    	}
-    	
-    	foreach ($this->decoratorSets[$class] as $data) {
-    	    $decorator = $this->createDecorator($data['decorator']);
-    	    $decorator->setNextDecorator($baseDecorator);
-    	    $baseDecorator = $decorator;
-    	}
-    	
-    	return $baseDecorator;
+        $class = get_class($layerableObject);
+        $baseLayer = new Layer\ObjectWrapper($layerableObject);
+        if (! isset($this->layerSets[$class])) {
+            return $baseLayer;
+        }
+        
+        foreach ($this->layerSets[$class] as $data) {
+            $layer = $this->createLayer($data['decorator']);
+            $layer->setNextLayer($baseLayer);
+            $baseLayer = $layer;
+        }
+        
+        return $baseLayer;
     }
-    
+
     /**
-     * @param unknown $classObjectOrCallback
+     *
+     * @param unknown $classObjectOrCallback            
      * @throws \RuntimeException
-     * @return \Sirius\Decorators\Decorator
+     * @return \Sirius\Stratum\Layer
      */
-    protected function createDecorator($classObjectOrCallback)
+    protected function createLayer($classObjectOrCallback)
     {
         if (is_string($classObjectOrCallback)) {
-            return new $classObjectOrCallback;
+            return new $classObjectOrCallback();
         }
         
         if (is_callable($classObjectOrCallback)) {
@@ -81,13 +84,13 @@ class Manager
         }
         
         if (is_object($classObjectOrCallback)) {
-            return clone($classObjectOrCallback);
+            return clone ($classObjectOrCallback);
         }
         
-        throw new \RuntimeException('Cound not create decorator from the specifications');
+        throw new \RuntimeException('Cound not create layer from the specifications');
     }
 
-    protected function sortDecoratorSet($set)
+    protected function sortLayerSet($set)
     {
         return usort($set, array(
             $this,
@@ -112,9 +115,9 @@ class Manager
         return 0;
     }
 
-    protected function validateDecoratorArgument($classObjectOrCallback)
+    protected function validateLayerArgument($classObjectOrCallback)
     {
-        if (is_object($classObjectOrCallback) && ! $classObjectOrCallback instanceof Decorator) {
+        if (is_object($classObjectOrCallback) && ! $classObjectOrCallback instanceof Layer) {
             throw new \InvalidArgumentException('The decorator object must extend the Decorator class');
         }
         
@@ -122,12 +125,12 @@ class Manager
             throw new \InvalidArgumentException('The decorator class does not exist');
         }
         
-        if (is_string($classObjectOrCallback) && ! is_subclass_of($classObjectOrCallback, '\Sirius\Decorators\Decorator')) {
-            throw new \InvalidArgumentException('The decorator class must extend the \Sirius\Decorators\Decorator class');
+        if (is_string($classObjectOrCallback) && ! is_subclass_of($classObjectOrCallback, '\Sirius\Stratum\Layer')) {
+            throw new \InvalidArgumentException('The decorator class must extend the \Sirius\Stratum\Layer class');
         }
         
-        if (is_callable($classObjectOrCallback) && ! call_user_func($classObjectOrCallback) instanceof Decorator) {
-            throw new \InvalidArgumentException('The callback generate a object of the \Sirius\Decorators\Decorator class');
+        if (is_callable($classObjectOrCallback) && ! call_user_func($classObjectOrCallback) instanceof Layer) {
+            throw new \InvalidArgumentException('The callback generate a object of the \Sirius\Stratum\Layer class');
         }
     }
 }
