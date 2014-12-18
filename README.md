@@ -122,7 +122,7 @@ class EventsDecorator extends Sirius\Decorators\Decorator {
 
 	function foo() {
 		$this->emit('before_foo', func_get_args());
-		return $this->callNext(__FUNCTION__, func_get_args();
+		return $this->callNext(__FUNCTION__, func_get_args());
 	}
 
 }
