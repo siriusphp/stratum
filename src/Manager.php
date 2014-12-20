@@ -39,14 +39,17 @@ class Manager
                 $this->layerSets[$class] = array();
             }
             
-            $this->index--;
+            $this->index --;
             $this->layerSets[$class][] = array(
                 'decorator' => $classObjectOrCallback,
                 'priority' => $priority,
                 'index' => $this->index
             );
             
-            $this->sortLayerSet($this->layerSets[$class]);
+            usort($this->layerSets[$class], array(
+                $this,
+                'layerSetComparator'
+            ));
         }
     }
 
@@ -90,15 +93,7 @@ class Manager
         throw new \RuntimeException('Cound not create layer from the specifications');
     }
 
-    protected function sortLayerSet($set)
-    {
-        return usort($set, array(
-            $this,
-            'setItemsComparator'
-        ));
-    }
-
-    protected function setItemsComparator($e1, $e2)
+    protected function layerSetComparator($e1, $e2)
     {
         // first check the user provided priority
         if ($e1['priority'] > $e2['priority']) {
