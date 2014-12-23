@@ -124,15 +124,11 @@ $decoratedClassObject->foo();
 
 Assuming those are the only decorators `DecoratorB::foo()` will be called first which might call `DecoratorA::foo()` which might call `DecoratedClass::foo()`
 
-#### 4. Can I add a decorator to an entire inheritance chain?
-
-Given `ClassC` inherits from `ClassB` which inherits form `ClassA` at the moment there is no mechanism to add a decorator to `ClassA` and propagate to `ClassC`. This is tricky, but if you send a PR I will be happy to consider it.
-
-#### 5. Can I add a decorator multiple times?
+#### 4. Can I add a decorator multiple times?
 
 Yes. The manager doesn't check if a decorator is attached to a class so be careful.
 
-#### 6. Can I still use events?
+#### 5. Can I still use events?
 
 Yes. You can have a decorator that will emit events. It might even make your life easier (use the same decorator on ALL the classes where you need that).
 
@@ -148,6 +144,6 @@ class EventsDecorator extends Sirius\Stratum\Decorator {
 }
 ```
 
-#### 7. Since I like decorators so much can I decorate a decorator?
+#### 6. Since I like decorators so much can I decorate a decorator?
 
 Haven't tested it yet but I don't see why not. 

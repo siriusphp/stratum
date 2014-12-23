@@ -119,7 +119,6 @@ class Manager
         switch ($layer['type']) {
             case 'implements':
                 return in_array($layer['target'], class_implements($object));
-                break;
             case 'uses':
                 // test the parent classes as well use the targeted trait
                 $targetClasses = class_parents($object);
@@ -132,10 +131,8 @@ class Manager
                 break;
             case 'extends':
                 return is_a($object, $layer['target']);
-                break;
             case 'is':
                 return get_class($object) === $layer['target'];
-                break;
         }
         return false;
     }
