@@ -1,9 +1,20 @@
 <?php
 namespace Sirius\Stratum;
 
-class TestableLayerableObjectBase
-{
+trait TestTrait {
+    function baz() {
+        return 'trait';
+    }
+}
 
+interface TestInterface {
+    function pam();
+}
+
+class TestableLayerableObjectBase implements TestInterface
+{
+    use TestTrait;
+    
     function foo($string = 'bar', $repeat = 1)
     {
         return str_repeat($string, $repeat);
@@ -13,6 +24,10 @@ class TestableLayerableObjectBase
     {
         return 'baz';
     }
+    
+    function pam() {
+        return 'interface';
+    }
 }
 
 class TestableLayerableObject extends TestableLayerableObjectBase implements LayerableInterface
@@ -21,6 +36,14 @@ class TestableLayerableObject extends TestableLayerableObjectBase implements Lay
 
     function foo($string = 'bar', $repeat = 1)
     {
+        return $this->executeLayeredMethod(__FUNCTION__, func_get_args());
+    }
+    
+    function baz() {
+        return $this->executeLayeredMethod(__FUNCTION__, func_get_args());
+    }
+    
+    function pam() {
         return $this->executeLayeredMethod(__FUNCTION__, func_get_args());
     }
 }
@@ -51,6 +74,19 @@ class LayerB extends Layer
     function bar()
     {
         return 'foo';
+    }
+}
+
+class LayerForTrait extends Layer {
+    function baz() {
+        return 'layer added to ' . $this->nextLayer->baz();
+    }
+}
+
+class LayerForInterface extends Layer {
+    
+    function pam() {
+        return 'layer added to ' . $this->nextLayer->pam();
     }
 }
 
@@ -145,6 +181,26 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         $testableObj = new TestableLayerableObject();
         
         $this->assertEquals('BA***bar***bar', $testableObj->foo());
+    }
+    
+    function testLayerAttachedByInterface() 
+    {
+        $this->manager->add('Sirius\Stratum\LayerForInterface', 'implements:Sirius\Stratum\TestInterface');
+        
+        $testableObj = new TestableLayerableObject();
+        #var_dump($this->manager->createLayerStack($testableObj));
+        
+        $this->assertEquals('layer added to interface', $testableObj->pam());
+    }
+
+    function testLayerAttachedByTrait() 
+    {
+        $this->manager->add('Sirius\Stratum\LayerForTrait', 'uses:Sirius\Stratum\TestTrait');
+        
+        $testableObj = new TestableLayerableObject();
+        #var_dump($this->manager->createLayerStack($testableObj));
+        
+        $this->assertEquals('layer added to trait', $testableObj->baz());
     }
 
     function createInvalidLayer()
