@@ -65,7 +65,7 @@ class ORM extends ORMBase {
 	use \Sirius\Stratum\LayerableTrait;
 	
 	function getLatestArticles() {
-		return $this->executeDecoratedMethod(__FUNCTION__, func_get_args());
+		return $this->executeLayeredMethod(__FUNCTION__, func_get_args());
 	}
 }
 ```
@@ -78,6 +78,15 @@ $manager = Sirius\Stratum\Manager::getInstance();
 $manager->add('CacheBehaviour', 'ORM', 1000); // 1000 is the priority (not mandatory though)
 $manager->add('LogBehaviour', 'ORM', 999); // 1000 is the priority (not mandatory though)
 $manager->add('ExceptionNotifier', 'ORM', 998); // 1000 is the priority (not mandatory though)
+
+// add decorators by TRAIT
+$manager->add('LogBehaviour', 'uses:Vendor\Package\LoggableTrait');
+
+// add decorators by INTERFACE
+$manager->add('LogBehaviour', 'implements:Vendor\Package\LoggableInterface');
+
+// add decorator by PARENT CLASS
+$manager->add('LogBehaviour', 'extends:Vendor\Package\SomeBaseClass');
 ```
 
 Decorator classes must extend the `Sirius\Stratum\Layer` class.

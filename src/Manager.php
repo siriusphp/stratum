@@ -6,10 +6,26 @@ class Manager
 
     protected static $instance;
 
+    /**
+     * Layers definitions as attached to the manager
+     * 
+     * @var array
+     */
+    protected $layers = array();
+
+    /**
+     * Layer sets based on the class of the object
+     * 
+     * @var array
+     */
     protected $layerSets = array();
 
     protected $index = PHP_INT_MAX;
 
+    /**
+     *
+     * @return \Sirius\Stratum\Manager
+     */
     static function getInstance()
     {
         if (! self::$instance) {
@@ -18,50 +34,122 @@ class Manager
         return self::$instance;
     }
 
+    /**
+     * For testing purposes (when you need the layers to be reconfigured)
+     * 
+     * @return \Sirius\Stratum\Manager
+     */
     static function resetInstance()
     {
         self::$instance = null;
         return self::getInstance();
     }
 
-    function add($classObjectOrCallback, $destinationClasses, $priority = 0)
+    /**
+     * Add a layer to the stratum manager
+     * $target can be:
+     * 1) a string representing:
+     * - a class: '\Some\Class'
+     * - an interface: 'implements:\Some\Interface'
+     * - an base class: 'extends:\Some\BaseClass'
+     * - a trait: 'uses:\SomeTrait'
+     * 2) comma separated strings from 1)
+     * 3) an array of strings from 1)
+     *
+     * @param mixed $classObjectOrCallback            
+     * @param string|array $targets            
+     * @param number $priority            
+     */
+    function add($classObjectOrCallback, $targets, $priority = 0)
     {
-        if (is_string($destinationClasses)) {
-            $destinationClasses = array(
-                $destinationClasses
-            );
+        if (is_string($targets)) {
+            $targets = explode(',', $targets);
         }
         
         $this->validateLayerArgument($classObjectOrCallback);
+        $this->layerSets = array(); // reset the cache
         
-        foreach ($destinationClasses as $class) {
-            if (! isset($this->layerSets[$class])) {
-                $this->layerSets[$class] = array();
-            }
-            
+        foreach ($targets as $target) {
             $this->index --;
-            $this->layerSets[$class][] = array(
+            $type = 'is'; // default type for the target
+            if (strpos($target, ':') !== false) {
+                list ($type, $target) = explode(':', $target, 2);
+            }
+            if (! in_array($type, array(
+                'is',
+                'implements',
+                'extends',
+                'uses'
+            ))) {
+                throw new \InvalidArgumentException('The type of target for "' . $target . '" is not valid. Probably you misspelled something');
+            }
+            $this->layers[] = array(
                 'decorator' => $classObjectOrCallback,
+                'type' => trim($type),
+                'target' => trim($target),
                 'priority' => $priority,
                 'index' => $this->index
             );
-            
-            usort($this->layerSets[$class], array(
-                $this,
-                'layerSetComparator'
-            ));
         }
+    }
+
+    protected function getLayerSetForObject($object)
+    {
+        $class = get_class($object);
+        if (isset($this->layerSets[$class])) {
+            return $this->layerSets[$class];
+        }
+        
+        $this->layerSets[$class] = array();
+        
+        foreach ($this->layers as $layer) {
+            if ($this->isLayerFitForObject($layer, $object)) {
+                $this->layerSets[$class][] = $layer;
+            }
+        }
+        usort($this->layerSets[$class], array(
+            $this,
+            'layerSetComparator'
+        ));
+        return $this->layerSets[$class];
+    }
+
+    protected function isLayerFitForObject($layer, $object)
+    {
+        switch ($layer['type']) {
+            case 'implements':
+                return in_array($layer['target'], class_implements($object));
+                break;
+            case 'uses':
+                // test the parent classes as well use the targeted trait
+                $targetClasses = class_parents($object);
+                array_unshift($targetClasses, get_class($object));
+                foreach ($targetClasses as $class) {
+                    if (in_array($layer['target'], class_uses($class))) {
+                        return true;
+                    }
+                }
+                break;
+            case 'extends':
+                return is_a($object, $layer['target']);
+                break;
+            case 'is':
+                return get_class($object) === $layer['target'];
+                break;
+        }
+        return false;
     }
 
     function createLayerStack(LayerableInterface $layerableObject)
     {
-        $class = get_class($layerableObject);
         $baseLayer = new Layer\ObjectWrapper($layerableObject);
-        if (! isset($this->layerSets[$class])) {
+        
+        $layers = $this->getLayerSetForObject($layerableObject);
+        if (empty($layers)) {
             return $baseLayer;
         }
         
-        foreach ($this->layerSets[$class] as $data) {
+        foreach ($layers as $data) {
             $layer = $this->createLayer($data['decorator']);
             $layer->setNextLayer($baseLayer);
             $baseLayer = $layer;
