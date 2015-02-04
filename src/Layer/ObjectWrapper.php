@@ -16,7 +16,7 @@ class ObjectWrapper extends Layer
         $this->object = $object;
     }
     
-    function callNext($method, $args) {
+    protected function callNext($method, $args) {
         return $this->object->callParentMethod($method, $args);
     }
 } 

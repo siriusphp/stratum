@@ -20,6 +20,12 @@ class Manager
      */
     protected $layerSets = array();
 
+    /**
+     * This is used to differenciate between layers
+     * with the same priority
+     * 
+     * @var int
+     */
     protected $index = PHP_INT_MAX;
 
     /**
@@ -93,6 +99,12 @@ class Manager
         }
     }
 
+    /**
+     * Compiles the set of layers that match an object
+     * 
+     * @param object $object
+     * @return array
+     */
     protected function getLayerSetForObject($object)
     {
         $class = get_class($object);
@@ -114,6 +126,13 @@ class Manager
         return $this->layerSets[$class];
     }
 
+    /**
+     * Checks if a layer is fit for an object
+     * 
+     * @param array $layer
+     * @param object $object
+     * @return boolean
+     */
     protected function isLayerFitForObject($layer, $object)
     {
         switch ($layer['type']) {
@@ -137,6 +156,12 @@ class Manager
         return false;
     }
 
+    /**
+     * Creates the layer stack for an object
+     * 
+     * @param LayerableInterface $layerableObject
+     * @return \Sirius\Stratum\Layer
+     */
     function createLayerStack(LayerableInterface $layerableObject)
     {
         $baseLayer = new Layer\ObjectWrapper($layerableObject);
@@ -156,8 +181,9 @@ class Manager
     }
 
     /**
-     *
-     * @param unknown $classObjectOrCallback            
+     * Creates a layer object based on its definition
+     * 
+     * @param mixed $classObjectOrCallback            
      * @throws \RuntimeException
      * @return \Sirius\Stratum\Layer
      */
@@ -178,6 +204,13 @@ class Manager
         throw new \RuntimeException('Cound not create layer from the specifications');
     }
 
+    /**
+     * Compares the specs of 2 layers based on the priority
+     * 
+     * @param array $e1
+     * @param array $e2
+     * @return number
+     */
     protected function layerSetComparator($e1, $e2)
     {
         // first check the user provided priority
@@ -195,10 +228,16 @@ class Manager
         return 0;
     }
 
+    /**
+     * Ensures that the layer argument is valid
+     * 
+     * @param mixed $classObjectOrCallback
+     * @throws \InvalidArgumentException
+     */
     protected function validateLayerArgument($classObjectOrCallback)
     {
         if (is_object($classObjectOrCallback) && ! $classObjectOrCallback instanceof Layer) {
-            throw new \InvalidArgumentException('The decorator object must extend the Decorator class');
+            throw new \InvalidArgumentException('The decorator object must extend the \Sirius\Stratum\Layer class');
         }
         
         if (is_string($classObjectOrCallback) && ! class_exists($classObjectOrCallback)) {

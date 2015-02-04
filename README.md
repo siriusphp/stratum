@@ -70,14 +70,14 @@ class ORM extends ORMBase {
 }
 ```
 
-#### 3. Instruct the Decorator Manager how you want to decorate the target class
+#### 3. Instruct the Stratum Manager what layers to add to the target class
 
 ```php
 $manager = Sirius\Stratum\Manager::getInstance();
 // I know... singleton... bad-practice... but this is a system-wide component and I think it's acceptable 
-$manager->add('CacheBehaviour', 'ORM', 1000); // 1000 is the priority (not mandatory though)
-$manager->add('LogBehaviour', 'ORM', 999); // 1000 is the priority (not mandatory though)
-$manager->add('ExceptionNotifier', 'ORM', 998); // 1000 is the priority (not mandatory though)
+$manager->add('CacheBehaviour', 'ORM', -1000); // -1000 is the priority (not mandatory though)
+$manager->add('LogBehaviour', 'ORM', 999);
+$manager->add('ExceptionNotifier', 'ORM', 998);
 
 // add decorators by TRAIT
 $manager->add('LogBehaviour', 'uses:Vendor\Package\LoggableTrait');
@@ -89,7 +89,7 @@ $manager->add('LogBehaviour', 'implements:Vendor\Package\LoggableInterface');
 $manager->add('LogBehaviour', 'extends:Vendor\Package\SomeBaseClass');
 ```
 
-Decorator classes must extend the `Sirius\Stratum\Layer` class.
+The layers classes must extend the `Sirius\Stratum\Layer` class.
 
 ### That's it!
 

@@ -8,11 +8,19 @@ class Layer {
         return $this->callNext($method, $args);
     }
 
+    /**
+     * @param Layer $layer
+     */
     function setNextLayer(Layer $layer) {
         $this->nextLayer = $layer;
     }
     
-    function callNext($method, $args) {
+    /**
+     * @param string $method
+     * @param array $args
+     * @return mixed
+     */
+    protected function callNext($method, $args) {
         return call_user_func_array(array($this->nextLayer, $method), $args);
     }
 }
