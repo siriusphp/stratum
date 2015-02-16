@@ -70,14 +70,13 @@ class ORM extends ORMBase {
 }
 ```
 
-#### 3. Instruct the Decorator Manager how you want to decorate the target class
+#### 3. Instruct the Stratum Manager what layers to add to the target class
 
 ```php
-$manager = Sirius\Stratum\Manager::getInstance();
-// I know... singleton... bad-practice... but this is a system-wide component and I think it's acceptable 
-$manager->add('CacheBehaviour', 'ORM', 1000); // 1000 is the priority (not mandatory though)
-$manager->add('LogBehaviour', 'ORM', 999); // 1000 is the priority (not mandatory though)
-$manager->add('ExceptionNotifier', 'ORM', 998); // 1000 is the priority (not mandatory though)
+$manager = new Sirius\Stratum\Manager();
+$manager->add('CacheBehaviour', 'ORM', -1000); // -1000 is the priority (not mandatory though)
+$manager->add('LogBehaviour', 'ORM', 999);
+$manager->add('ExceptionNotifier', 'ORM', 998);
 
 // add decorators by TRAIT
 $manager->add('LogBehaviour', 'uses:Vendor\Package\LoggableTrait');
@@ -87,9 +86,12 @@ $manager->add('LogBehaviour', 'implements:Vendor\Package\LoggableInterface');
 
 // add decorator by PARENT CLASS
 $manager->add('LogBehaviour', 'extends:Vendor\Package\SomeBaseClass');
+
+// attach the layers on the target method
+$ormInstance->setTopLayer($manager->createLayerStack($ormInstance));
 ```
 
-Decorator classes must extend the `Sirius\Stratum\Layer` class.
+The layers classes must extend the `Sirius\Stratum\Layer` class.
 
 ### That's it!
 
@@ -107,8 +109,8 @@ Decorator classes must extend the `Sirius\Stratum\Layer` class.
 No. You can add an object as a decorator (the object will be cloned whenever needed by that class though, so keep that in mind) or a callback/function that returns a decorator.
 
 ```php
-$manager->add($someAlreadyInstanciatedDecorator, 'ORM');
-$manager->add($someFunctionOrCallbackThatReturnsADecorator, 'ORM');
+$manager->add($someAlreadyInstanciatedLayer, 'ORM');
+$manager->add($someCallableThatReturnsALayer, 'ORM');
 ```
 
 #### 1. What happens if the decorators have the same priority?
@@ -116,13 +118,13 @@ $manager->add($someFunctionOrCallbackThatReturnsADecorator, 'ORM');
 They will be called in the reverse order they where added (ie: the last will wrap around the first).
 
 ```php
-$manager->add('DecoratorA', 'DecoratedClass', 100);
-$manager->add('DecoratorB', 'DecoratedClass', 100);
+$manager->add('LayerA', 'LayerableClass', 100);
+$manager->add('LayerB', 'LayerableClass', 100);
 
 $decoratedClassObject->foo();
 ```
 
-Assuming those are the only decorators `DecoratorB::foo()` will be called first which might call `DecoratorA::foo()` which might call `DecoratedClass::foo()`
+Assuming those are the only decorators `DecoratorB::foo()` will be called first which might call `LayerA::foo()` which might call `LayerableClass::foo()`
 
 #### 4. Can I add a decorator multiple times?
 
@@ -134,7 +136,7 @@ Yes. You can have a decorator that will emit events. It might even make your lif
 
 ```php
 
-class EventsDecorator extends Sirius\Stratum\Decorator {
+class EventsLayer extends Sirius\Stratum\Layer {
 
 	function foo() {
 		$this->emit('before_foo', func_get_args());

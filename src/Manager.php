@@ -20,30 +20,13 @@ class Manager
      */
     protected $layerSets = array();
 
-    protected $index = PHP_INT_MAX;
-
     /**
-     *
-     * @return \Sirius\Stratum\Manager
-     */
-    static function getInstance()
-    {
-        if (! self::$instance) {
-            self::$instance = new self();
-        }
-        return self::$instance;
-    }
-
-    /**
-     * For testing purposes (when you need the layers to be reconfigured)
+     * This is used to differenciate between layers
+     * with the same priority
      * 
-     * @return \Sirius\Stratum\Manager
+     * @var int
      */
-    static function resetInstance()
-    {
-        self::$instance = null;
-        return self::getInstance();
-    }
+    protected $index = PHP_INT_MAX;
 
     /**
      * Add a layer to the stratum manager
@@ -93,6 +76,12 @@ class Manager
         }
     }
 
+    /**
+     * Compiles the set of layers that match an object
+     * 
+     * @param object $object
+     * @return array
+     */
     protected function getLayerSetForObject($object)
     {
         $class = get_class($object);
@@ -114,6 +103,13 @@ class Manager
         return $this->layerSets[$class];
     }
 
+    /**
+     * Checks if a layer is fit for an object
+     * 
+     * @param array $layer
+     * @param object $object
+     * @return boolean
+     */
     protected function isLayerFitForObject($layer, $object)
     {
         switch ($layer['type']) {
@@ -137,9 +133,20 @@ class Manager
         return false;
     }
 
+    /**
+     * Creates the layer stack for an object
+     * 
+     * @param LayerableInterface $layerableObject
+     * @return \Sirius\Stratum\Layer
+     */
     function createLayerStack(LayerableInterface $layerableObject)
     {
-        $baseLayer = new Layer\ObjectWrapper($layerableObject);
+        $layerableObjectClassWrapper = get_class($layerableObject) . 'Wrapper';
+        if (class_exists($layerableObjectClassWrapper)) {
+            $baseLayer = new $layerableObjectClassWrapper($layerableObject);
+        } else {
+            $baseLayer = new Layer\ObjectWrapper($layerableObject);
+        }
         
         $layers = $this->getLayerSetForObject($layerableObject);
         if (empty($layers)) {
@@ -156,8 +163,9 @@ class Manager
     }
 
     /**
-     *
-     * @param unknown $classObjectOrCallback            
+     * Creates a layer object based on its definition
+     * 
+     * @param mixed $classObjectOrCallback            
      * @throws \RuntimeException
      * @return \Sirius\Stratum\Layer
      */
@@ -178,6 +186,13 @@ class Manager
         throw new \RuntimeException('Cound not create layer from the specifications');
     }
 
+    /**
+     * Compares the specs of 2 layers based on the priority
+     * 
+     * @param array $e1
+     * @param array $e2
+     * @return number
+     */
     protected function layerSetComparator($e1, $e2)
     {
         // first check the user provided priority
@@ -195,10 +210,16 @@ class Manager
         return 0;
     }
 
+    /**
+     * Ensures that the layer argument is valid
+     * 
+     * @param mixed $classObjectOrCallback
+     * @throws \InvalidArgumentException
+     */
     protected function validateLayerArgument($classObjectOrCallback)
     {
         if (is_object($classObjectOrCallback) && ! $classObjectOrCallback instanceof Layer) {
-            throw new \InvalidArgumentException('The decorator object must extend the Decorator class');
+            throw new \InvalidArgumentException('The decorator object must extend the \Sirius\Stratum\Layer class');
         }
         
         if (is_string($classObjectOrCallback) && ! class_exists($classObjectOrCallback)) {

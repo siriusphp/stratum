@@ -10,13 +10,13 @@ use Sirius\Stratum\LayerableInterface;
  */
 class ObjectWrapper extends Layer
 {
-    var $object;
+    protected $object;
     
     function __construct(LayerableInterface $object) {
         $this->object = $object;
     }
     
-    function callNext($method, $args) {
+    protected function callNext($method, $args) {
         return $this->object->callParentMethod($method, $args);
     }
 } 

@@ -101,12 +101,13 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
 
     function setUp()
     {
-        $this->manager = Manager::resetInstance();
+        $this->manager = new Manager();
     }
 
     function testNoLayers()
     {
         $testableObj = new TestableLayerableObject();
+        $testableObj->setTopLayer($this->manager->createLayerStack($testableObj));
         
         $this->assertEquals('bar', $testableObj->foo());
         $this->assertEquals('baz', $testableObj->bar());
@@ -119,7 +120,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         $this->manager->add('Sirius\Stratum\LayerA', 'Sirius\Stratum\TestableLayerableObject');
         
         $testableObj = new TestableLayerableObject();
-//        var_dump($this->manager->createLayerStack($testableObj));
+        $testableObj->setTopLayer($this->manager->createLayerStack($testableObj));
         
         $this->assertEquals('AB***bar***bar', $testableObj->foo());
         $this->assertEquals('baz', $testableObj->bar());
@@ -130,6 +131,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         $this->manager->add(new LayerA(), 'Sirius\Stratum\TestableLayerableObject');
         
         $testableObj = new TestableLayerableObject();
+        $testableObj->setTopLayer($this->manager->createLayerStack($testableObj));
         
         $this->assertEquals('Abarbar', $testableObj->foo());
     }
@@ -142,6 +144,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         ), 'Sirius\Stratum\TestableLayerableObject');
         
         $testableObj = new TestableLayerableObject();
+        $testableObj->setTopLayer($this->manager->createLayerStack($testableObj));
         
         $this->assertEquals('Abarbar', $testableObj->foo());
     }
@@ -179,6 +182,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         $this->manager->add('Sirius\Stratum\LayerB', 'Sirius\Stratum\TestableLayerableObject', 1);
         
         $testableObj = new TestableLayerableObject();
+        $testableObj->setTopLayer($this->manager->createLayerStack($testableObj));
         
         $this->assertEquals('BA***bar***bar', $testableObj->foo());
     }
@@ -188,7 +192,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         $this->manager->add('Sirius\Stratum\LayerForInterface', 'implements:Sirius\Stratum\TestInterface');
         
         $testableObj = new TestableLayerableObject();
-        #var_dump($this->manager->createLayerStack($testableObj));
+        $testableObj->setTopLayer($this->manager->createLayerStack($testableObj));
         
         $this->assertEquals('layer added to interface', $testableObj->pam());
     }
@@ -198,8 +202,8 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
         $this->manager->add('Sirius\Stratum\LayerForTrait', 'uses:Sirius\Stratum\TestTrait');
         
         $testableObj = new TestableLayerableObject();
-        #var_dump($this->manager->createLayerStack($testableObj));
-        
+        $testableObj->setTopLayer($this->manager->createLayerStack($testableObj));
+                
         $this->assertEquals('layer added to trait', $testableObj->baz());
     }
 
