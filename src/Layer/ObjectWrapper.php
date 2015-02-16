@@ -10,7 +10,7 @@ use Sirius\Stratum\LayerableInterface;
  */
 class ObjectWrapper extends Layer
 {
-    var $object;
+    protected $object;
     
     function __construct(LayerableInterface $object) {
         $this->object = $object;

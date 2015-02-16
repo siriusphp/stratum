@@ -29,29 +29,6 @@ class Manager
     protected $index = PHP_INT_MAX;
 
     /**
-     *
-     * @return \Sirius\Stratum\Manager
-     */
-    static function getInstance()
-    {
-        if (! self::$instance) {
-            self::$instance = new self();
-        }
-        return self::$instance;
-    }
-
-    /**
-     * For testing purposes (when you need the layers to be reconfigured)
-     * 
-     * @return \Sirius\Stratum\Manager
-     */
-    static function resetInstance()
-    {
-        self::$instance = null;
-        return self::getInstance();
-    }
-
-    /**
      * Add a layer to the stratum manager
      * $target can be:
      * 1) a string representing:
@@ -164,7 +141,12 @@ class Manager
      */
     function createLayerStack(LayerableInterface $layerableObject)
     {
-        $baseLayer = new Layer\ObjectWrapper($layerableObject);
+        $layerableObjectClassWrapper = get_class($layerableObject) . 'Wrapper';
+        if (class_exists($layerableObjectClassWrapper)) {
+            $baseLayer = new $layerableObjectClassWrapper($layerableObject);
+        } else {
+            $baseLayer = new Layer\ObjectWrapper($layerableObject);
+        }
         
         $layers = $this->getLayerSetForObject($layerableObject);
         if (empty($layers)) {

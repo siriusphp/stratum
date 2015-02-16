@@ -1,7 +1,7 @@
 <?php
 namespace Sirius\Stratum;
 
-use Sirius\Stratum\Manager as StratumManager;
+use Sirius\Stratum\Layer;
 
 trait LayerableTrait
 {
@@ -23,6 +23,16 @@ trait LayerableTrait
     {
         return call_user_func_array('parent::' . $method, $args);
     }
+    
+    /**
+     * Set the top layer of this object
+     * 
+     * @param Layer $topLayer
+     */
+    function setTopLayer(Layer $topLayer)
+    {
+        $this->topLayer = $topLayer;
+    }
 
     /**
      * This will call the proper method on the top layer
@@ -31,10 +41,10 @@ trait LayerableTrait
      * @param array $args
      * @return mixed
      */
-    protected function executeLayeredMethod($method, $args = array())
+    function executeLayeredMethod($method, $args = array())
     {
         if (! $this->topLayer) {
-            $this->topLayer = StratumManager::getInstance()->createLayerStack($this);
+            return $this->callParentMethod($method, $args);
         }
         return call_user_func_array(array($this->topLayer, $method), $args);
     }
