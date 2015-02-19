@@ -7,6 +7,7 @@ trait LayerableTrait
 {
 
     /**
+     *
      * @var Layer
      */
     protected $topLayer;
@@ -14,20 +15,20 @@ trait LayerableTrait
     /**
      * This is required by the bottom layer (ObjectWrapper) so that parent methods
      * are executed (they contain the business logic code)
-     * 
-     * @param string $method
-     * @param array $args
+     *
+     * @param string $method            
+     * @param array $args            
      * @return mixed
      */
     function callParentMethod($method, $args = array())
     {
         return call_user_func_array('parent::' . $method, $args);
     }
-    
+
     /**
      * Set the top layer of this object
-     * 
-     * @param Layer $topLayer
+     *
+     * @param Layer $topLayer            
      */
     function setTopLayer(Layer $topLayer)
     {
@@ -36,9 +37,9 @@ trait LayerableTrait
 
     /**
      * This will call the proper method on the top layer
-     * 
-     * @param string $method
-     * @param array $args
+     *
+     * @param string $method            
+     * @param array $args            
      * @return mixed
      */
     function executeLayeredMethod($method, $args = array())
@@ -46,6 +47,9 @@ trait LayerableTrait
         if (! $this->topLayer) {
             return $this->callParentMethod($method, $args);
         }
-        return call_user_func_array(array($this->topLayer, $method), $args);
+        return call_user_func_array(array(
+            $this->topLayer,
+            $method
+        ), $args);
     }
 }

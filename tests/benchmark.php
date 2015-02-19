@@ -60,7 +60,7 @@ class SampleLayer extends Sirius\Stratum\Layer {
 class SampleWrapper extends Sirius\Stratum\Layer\ObjectWrapper {
 
     function add($a, $b) {
-        return 1 + $this->object->callParentMethod('add', func_get_args());
+        return $this->object->callParentMethod('add', func_get_args());
     }
 
 }
