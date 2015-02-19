@@ -1,7 +1,7 @@
 #Sirius Stratum
 
-[![Build Status](https://travis-ci.org/siriusphp/stratum.svg)](https://travis-ci.org/siriusphp/stratum)
-[![Coverage Status](https://coveralls.io/repos/siriusphp/stratum/badge.png)](https://coveralls.io/r/siriusphp/stratum)
+[![Build Status](https://scrutinizer-ci.com/g/siriusphp/stratum/badges/build.png?b=master)](https://scrutinizer-ci.com/g/siriusphp/stratum/build-status/master)
+[![Code Coverage](https://scrutinizer-ci.com/g/siriusphp/stratum/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/siriusphp/stratum/?branch=master)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/siriusphp/stratum/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/siriusphp/stratum/?branch=master)
 
 `Sirius\Stratum` is a library that will allow you to create extensible systems without having to use:
