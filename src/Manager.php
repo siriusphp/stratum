@@ -43,7 +43,7 @@ class Manager
      * @param string|array $targets            
      * @param number $priority            
      */
-    function add($classObjectOrCallback, $targets, $priority = 0)
+    public function add($classObjectOrCallback, $targets, $priority = 0)
     {
         if (is_string($targets)) {
             $targets = explode(',', $targets);
@@ -139,7 +139,7 @@ class Manager
      * @param LayerableInterface $layerableObject
      * @return \Sirius\Stratum\Layer
      */
-    function createLayerStack(LayerableInterface $layerableObject)
+    public function createLayerStack(LayerableInterface $layerableObject)
     {
         $layerableObjectClassWrapper = get_class($layerableObject) . 'Wrapper';
         if (class_exists($layerableObjectClassWrapper)) {

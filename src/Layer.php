@@ -11,7 +11,7 @@ class Layer {
      * @param array $args
      * @return mixed
      */
-    function __call($method, $args) {
+    public function __call($method, $args) {
         return $this->callNext($method, $args);
     }
 
@@ -20,7 +20,7 @@ class Layer {
      * 
      * @param Layer $layer
      */
-    function setNextLayer(Layer $layer) {
+    public function setNextLayer(Layer $layer) {
         $this->nextLayer = $layer;
     }
     

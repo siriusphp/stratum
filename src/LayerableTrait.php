@@ -20,7 +20,7 @@ trait LayerableTrait
      * @param array $args            
      * @return mixed
      */
-    function callParentMethod($method, $args = array())
+    public function callParentMethod($method, $args = array())
     {
         return call_user_func_array('parent::' . $method, $args);
     }
@@ -30,7 +30,7 @@ trait LayerableTrait
      *
      * @param Layer $topLayer            
      */
-    function setTopLayer(Layer $topLayer)
+    public function setTopLayer(Layer $topLayer)
     {
         $this->topLayer = $topLayer;
     }
@@ -42,7 +42,7 @@ trait LayerableTrait
      * @param array $args            
      * @return mixed
      */
-    function executeLayeredMethod($method, $args = array())
+    public function executeLayeredMethod($method, $args = array())
     {
         if (! $this->topLayer) {
             return $this->callParentMethod($method, $args);

@@ -14,7 +14,7 @@ class ClassMaker
      * @throws \InvalidArgumentException
      * @return string bool
      */
-    function makeForClass($class, $type, $destinationFolder = null)
+    public function makeForClass($class, $type, $destinationFolder = null)
     {
         $classBody = $this->createClassBody($class, $type);
         

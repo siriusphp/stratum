@@ -12,7 +12,7 @@ class ObjectWrapper extends Layer
 {
     protected $object;
     
-    function __construct(LayerableInterface $object) {
+    public function __construct(LayerableInterface $object) {
         $this->object = $object;
     }
     

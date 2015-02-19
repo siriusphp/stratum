@@ -10,7 +10,7 @@ interface LayerableInterface {
      * @param array $args
      * @return mixed
      */
-    function callParentMethod($method, $args = array());
+    public function callParentMethod($method, $args = array());
     /**
      * This will call the proper method on the top layer
      *
@@ -18,5 +18,5 @@ interface LayerableInterface {
      * @param array $args
      * @return mixed
      */
-    function executeLayeredMethod($method, $args = array());
+    public function executeLayeredMethod($method, $args = array());
 }
